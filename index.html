@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calendar Licență 2026</title>
+  <meta name="description" content="Calendar interactiv pentru sesiune, proiecte, licență și pregătire - 2026." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">26</div>
+        <div>
+          <p class="eyebrow">Sesiune • Proiecte • Licență</p>
+          <h1>Calendar 2026</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="syncStatus" class="status-pill local">Mod local</span>
+        <button id="themeToggle" class="ghost-btn" type="button" aria-label="Schimbă tema">🌙</button>
+        <button id="authButton" class="primary-btn" type="button">Login admin</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Planul tău până la licență</p>
+          <h2>Totul clar, editabil și sincronizat.</h2>
+          <p>
+            Vezi examenele, proiectele și perioadele de învățat. Când conectezi Supabase,
+            modificările se salvează în cloud și se văd pe toate dispozitivele.
+          </p>
+        </div>
+        <div class="hero-stats">
+          <article>
+            <span id="totalEvents">0</span>
+            <small>evenimente</small>
+          </article>
+          <article>
+            <span id="activeNow">0</span>
+            <small>active azi</small>
+          </article>
+          <article>
+            <span id="nextEventDays">—</span>
+            <small>zile până la următorul</small>
+          </article>
+        </div>
+      </section>
+
+      <section id="setupNotice" class="setup-notice hidden">
+        <div>
+          <strong>Setup Supabase lipsă.</strong>
+          <p>Momentan rulează în mod local. Pentru varianta “full full”, completează <code>supabase-config.js</code>, activează Auth + Supabase și publică regulile.</p>
+        </div>
+        <button id="downloadSeed" class="secondary-btn" type="button">Exportă evenimente seed</button>
+      </section>
+
+      <section class="toolbar-card">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Caută: .NET, licență, examen, GIU..." />
+        </div>
+        <div class="toolbar-actions">
+          <select id="monthFilter" aria-label="Filtru lună">
+            <option value="all">Toate lunile</option>
+            <option value="2026-06">Iunie</option>
+            <option value="2026-07">Iulie</option>
+            <option value="2026-08">August</option>
+            <option value="2026-09">Septembrie</option>
+          </select>
+          <button id="viewTimeline" class="view-btn active" type="button">Timeline</button>
+          <button id="viewCalendar" class="view-btn" type="button">Calendar</button>
+          <button id="addEventBtn" class="primary-btn" type="button">+ Eveniment</button>
+        </div>
+      </section>
+
+      <section class="filter-row" aria-label="Filtre categorii">
+        <button class="chip active" data-filter="all" type="button">Toate</button>
+        <button class="chip" data-filter="examen" type="button">Examene</button>
+        <button class="chip" data-filter="proiect" type="button">Proiecte</button>
+        <button class="chip" data-filter="licenta" type="button">Licență</button>
+        <button class="chip" data-filter="invatat" type="button">Învățat</button>
+        <button class="chip" data-filter="predare" type="button">Predare</button>
+        <button class="chip" data-filter="liber" type="button">Liber</button>
+      </section>
+
+      <section class="dashboard-grid">
+        <aside class="side-card">
+          <h3>Următorul pas</h3>
+          <div id="nextEventCard" class="next-card empty">Nu există evenimente viitoare.</div>
+          <div class="legend">
+            <h3>Legendă</h3>
+            <span><i class="dot examen"></i> Examen</span>
+            <span><i class="dot proiect"></i> Proiect</span>
+            <span><i class="dot licenta"></i> Licență</span>
+            <span><i class="dot invatat"></i> Învățat</span>
+            <span><i class="dot predare"></i> Predare</span>
+            <span><i class="dot liber"></i> Timp liber</span>
+          </div>
+          <div class="admin-panel">
+            <h3>Admin</h3>
+            <p id="adminHint">Loghează-te ca admin pentru editare cloud.</p>
+            <div class="admin-buttons">
+              <button id="seedButton" class="secondary-btn" type="button">Încarcă evenimentele inițiale</button>
+              <button id="importButton" class="secondary-btn" type="button">Import JSON</button>
+              <button id="exportButton" class="secondary-btn" type="button">Export JSON</button>
+              <button id="printButton" class="secondary-btn" type="button">Print / PDF</button>
+              <input id="importFile" type="file" accept="application/json" hidden />
+            </div>
+          </div>
+        </aside>
+
+        <section class="main-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Vizualizare</p>
+              <h3 id="viewTitle">Timeline complet</h3>
+            </div>
+            <span id="resultCount" class="result-pill">0 rezultate</span>
+          </div>
+          <div id="timelineView" class="timeline-view"></div>
+          <div id="calendarView" class="calendar-view hidden"></div>
+          <div id="emptyState" class="empty-state hidden">
+            <strong>Nimic găsit.</strong>
+            <p>Schimbă căutarea sau filtrele.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="eventDialog" class="modal">
+    <form id="eventForm" method="dialog">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Editare</p>
+          <h3 id="eventDialogTitle">Adaugă eveniment</h3>
+        </div>
+        <button class="icon-btn" value="cancel" type="button" data-close-event>×</button>
+      </div>
+      <input id="eventId" type="hidden" />
+      <label>
+        Titlu
+        <input id="eventTitle" type="text" required maxlength="120" placeholder="Ex: Examen .NET" />
+      </label>
+      <div class="form-grid">
+        <label>
+          Start
+          <input id="eventStart" type="date" required min="2026-01-01" max="2026-12-31" />
+        </label>
+        <label>
+          Final
+          <input id="eventEnd" type="date" required min="2026-01-01" max="2026-12-31" />
+        </label>
+      </div>
+      <div class="form-grid">
+        <label>
+          Categorie
+          <select id="eventCategory" required>
+            <option value="examen">Examen</option>
+            <option value="proiect">Proiect</option>
+            <option value="licenta">Licență</option>
+            <option value="invatat">Învățat</option>
+            <option value="predare">Predare</option>
+            <option value="liber">Timp liber</option>
+          </select>
+        </label>
+        <label>
+          Prioritate
+          <select id="eventPriority" required>
+            <option value="mare">Mare</option>
+            <option value="medie">Medie</option>
+            <option value="mica">Mică</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        Descriere / notițe
+        <textarea id="eventDescription" rows="4" maxlength="500" placeholder="Ce trebuie făcut concret?"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button id="deleteEventBtn" class="danger-btn hidden" type="button">Șterge</button>
+        <span class="spacer"></span>
+        <button class="secondary-btn" type="button" data-close-event>Anulează</button>
+        <button class="primary-btn" value="default" type="submit">Salvează</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="authDialog" class="modal small-modal">
+    <form id="authForm" method="dialog">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Admin</p>
+          <h3>Login / creare cont</h3>
+        </div>
+        <button class="icon-btn" value="cancel" type="button" data-close-auth>×</button>
+      </div>
+      <label>
+        Email
+        <input id="authEmail" type="email" autocomplete="email" required placeholder="emailul tău de admin" />
+      </label>
+      <label>
+        Parolă
+        <input id="authPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="minim 6 caractere" />
+      </label>
+      <p class="auth-note">Prima dată creezi contul în Supabase Auth, apoi folosești același login pentru editare.</p>
+      <div class="modal-actions">
+        <button class="secondary-btn" type="button" data-close-auth>Anulează</button>
+        <button id="registerBtn" class="secondary-btn" type="button">Creează cont</button>
+        <button class="primary-btn" type="submit">Intră</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+[
+  {"title":"Închidere proiect PW","startDate":"2026-06-08","endDate":"2026-06-08","category":"proiect","priority":"mare","description":"Finalizează și verifică proiectul de PW înainte de examen."},
+  {"title":"Examen PW","startDate":"2026-06-09","endDate":"2026-06-09","category":"examen","priority":"mare","description":"Zi de examen. Repetă rapid înainte, fără să te obosești inutil."},
+  {"title":"Examen ICS","startDate":"2026-06-11","endDate":"2026-06-11","category":"examen","priority":"mare","description":"Examen ICS."},
+  {"title":"Proiect .NET","startDate":"2026-06-11","endDate":"2026-06-14","category":"proiect","priority":"mare","description":"Perioadă dedicată proiectului .NET."},
+  {"title":"Proiect GIU","startDate":"2026-06-14","endDate":"2026-06-17","category":"proiect","priority":"mare","description":"Perioadă dedicată proiectului GIU."},
+  {"title":"Examen GIU","startDate":"2026-06-18","endDate":"2026-06-18","category":"examen","priority":"mare","description":"Zi de examen GIU."},
+  {"title":"Învățat pentru .NET / licență / timp liber","startDate":"2026-06-19","endDate":"2026-06-21","category":"invatat","priority":"medie","description":"Dacă este cazul, înveți pentru .NET. Dacă nu, lucrezi la licență sau iei timp liber."},
+  {"title":"Examen .NET","startDate":"2026-06-22","endDate":"2026-06-22","category":"examen","priority":"mare","description":"Zi de examen .NET."},
+  {"title":"Licență","startDate":"2026-06-23","endDate":"2026-06-25","category":"licenta","priority":"mare","description":"Perioadă blocată pentru licență."},
+  {"title":"Examen CELL","startDate":"2026-06-26","endDate":"2026-06-26","category":"examen","priority":"mare","description":"Zi de examen CELL."},
+  {"title":"Învățat pentru Sisteme de Operare","startDate":"2026-06-27","endDate":"2026-07-20","category":"invatat","priority":"mare","description":"Bloc mare de pregătire pentru Sisteme de Operare."},
+  {"title":"Predare licență pentru sesiunea de toamnă","startDate":"2026-07-22","endDate":"2026-07-22","category":"predare","priority":"mare","description":"Deadline de predare pentru sesiunea de toamnă."},
+  {"title":"Pregătire pentru examenul de licență","startDate":"2026-07-23","endDate":"2026-09-08","category":"licenta","priority":"mare","description":"Pregătire susținută pentru examenul de licență."}
+]
