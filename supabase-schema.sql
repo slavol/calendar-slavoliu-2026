@@ -1,5 +1,5 @@
 -- Rulează tot fișierul în Supabase -> SQL Editor -> New query -> Run.
--- Înlocuiește your-email@gmail.com cu emailul tău real înainte de Run.
+-- Înlocuiește slavoliu.preda24@gmail.com cu emailul tău real înainte de Run.
 
 create extension if not exists pgcrypto;
 
@@ -32,20 +32,20 @@ create policy "Admins can insert calendar events"
 on public.calendar_events
 for insert
 to authenticated
-with check ((auth.jwt() ->> 'email') in ('your-email@gmail.com'));
+with check ((auth.jwt() ->> 'email') in ('slavoliu.preda24@gmail.com'));
 
 create policy "Admins can update calendar events"
 on public.calendar_events
 for update
 to authenticated
-using ((auth.jwt() ->> 'email') in ('your-email@gmail.com'))
-with check ((auth.jwt() ->> 'email') in ('your-email@gmail.com'));
+using ((auth.jwt() ->> 'email') in ('slavoliu.preda24@gmail.com'))
+with check ((auth.jwt() ->> 'email') in ('slavoliu.preda24@gmail.com'));
 
 create policy "Admins can delete calendar events"
 on public.calendar_events
 for delete
 to authenticated
-using ((auth.jwt() ->> 'email') in ('your-email@gmail.com'));
+using ((auth.jwt() ->> 'email') in ('slavoliu.preda24@gmail.com'));
 
 -- Date inițiale. Dacă ai rulat deja seed din site, nu mai rula partea de mai jos.
 insert into public.calendar_events (title, start_date, end_date, category, priority, description) values

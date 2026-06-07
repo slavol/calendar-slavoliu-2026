@@ -582,7 +582,7 @@ function closeEventDialog() {
   elements.eventDialog.close();
 }
 
-async async function saveEventFromForm() {
+async function saveEventFromForm() {
   if (!canEdit()) return;
   const event = normalizeEvent({
     id: elements.eventId.value || undefined,
@@ -620,7 +620,7 @@ async async function saveEventFromForm() {
   showToast('Eveniment salvat.');
 }
 
-async async function deleteCurrentEvent() {
+async function deleteCurrentEvent() {
   const id = elements.eventId.value;
   if (!id || !canEdit()) return;
   const ok = confirm('Sigur vrei să ștergi evenimentul?');
@@ -639,7 +639,7 @@ async async function deleteCurrentEvent() {
   showToast('Eveniment șters.');
 }
 
-async async function seedInitialEvents() {
+async function seedInitialEvents() {
   if (!canEdit()) return;
   const ok = confirm('Asta adaugă evenimentele inițiale. Continuăm?');
   if (!ok) return;
@@ -672,7 +672,7 @@ function exportJson(events = state.events) {
   URL.revokeObjectURL(url);
 }
 
-async async function importJson(file) {
+async function importJson(file) {
   if (!canEdit()) return;
   const text = await file.text();
   const parsed = JSON.parse(text).map(normalizeEvent);
@@ -693,7 +693,7 @@ async async function importJson(file) {
   showToast('Import finalizat.');
 }
 
-async async function login(email, password) {
+async function login(email, password) {
   if (!state.supabaseReady) {
     showToast('Loginul funcționează după configurarea Supabase.');
     return;
@@ -704,7 +704,7 @@ async async function login(email, password) {
   showToast('Ai intrat.');
 }
 
-async async function register(email, password) {
+async function register(email, password) {
   if (!state.supabaseReady) {
     showToast('Crearea contului funcționează după configurarea Supabase.');
     return;
