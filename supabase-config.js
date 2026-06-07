@@ -1,6 +1,5 @@
-// 1) Creează proiect Supabase.
-// 2) Project Settings -> API -> copiază Project URL și anon public key aici.
-// 3) În ADMIN_EMAILS pune emailul/emailurile care au voie să editeze.
+// Config completat cu datele tale Supabase.
+// ATENȚIE: aici se pune DOAR Publishable key / anon public key, niciodată Secret key.
 
 export const supabaseConfig = {
   url: "https://xlelpnkljrweenhzhftn.supabase.co",

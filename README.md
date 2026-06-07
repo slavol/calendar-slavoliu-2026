@@ -1,27 +1,63 @@
-# Calendar Licență 2026 — varianta full full cu Supabase
+# Calendar 2026 - varianta rezolvată complet
 
-Mini-app statică HTML/CSS/JS cu backend Supabase pentru login admin, bază de date și sincronizare live.
+Aceasta este varianta nouă, curată, fără afișare publică înainte de login.
 
-## Fișiere
+## Ce este reparat
 
-- `index.html` — interfața
-- `styles.css` — design responsive
-- `app.js` — logica aplicației
-- `supabase-config.js` — aici pui URL-ul și cheia publică anon
-- `supabase-schema.sql` — tabel + reguli RLS + evenimente inițiale
-- `events.seed.json` — backup cu evenimentele inițiale
+- Fără login nu se afișează calendarul, evenimentele, filtrele sau butoanele.
+- Nu există register pe site.
+- Login-ul este doar pentru adminul din `supabase-config.js`.
+- Evenimentele sunt salvate în Supabase.
+- Duplicatele sunt eliminate prin resetarea tabelului și prin `id` unic.
+- Designul este refăcut, responsive și cu texte care nu se mai taie.
+- Ai add/edit/delete, import/export JSON, curățare duplicate și reset plan inițial.
 
-## Setup Supabase
+## Pași obligatorii în Supabase
 
-1. Intră pe https://supabase.com și creează un proiect nou.
-2. Mergi la **SQL Editor** și rulează `supabase-schema.sql`. Înainte de Run, schimbă `your-email@gmail.com` cu emailul tău de admin.
-3. Mergi la **Authentication → Users → Add user** și creează userul cu același email.
-4. Mergi la **Project Settings → API** și copiază:
-   - Project URL
-   - anon public key
-5. Pune valorile în `supabase-config.js`.
-6. Hostuiește folderul pe GitHub Pages, Netlify, Vercel sau Cloudflare Pages.
+1. Intră în Supabase -> proiectul tău.
+2. Mergi la `SQL Editor`.
+3. Copiază tot conținutul din `supabase-reset.sql`.
+4. Apasă `Run`.
 
-## Notă
+Asta recreează tabelul `calendar_events`, activează RLS și pune evenimentele curate.
 
-Dacă `supabase-config.js` nu e completat, aplicația rulează în mod local și salvează în browser cu `localStorage`.
+## Activează login-ul
+
+În Supabase:
+
+1. `Authentication -> Providers -> Email`
+2. Activează providerul Email.
+3. `Authentication -> Users -> Add user`
+4. Creează userul:
+
+```txt
+slavoliu.preda24@gmail.com
+```
+
+Pune parola ta. Site-ul nu are register.
+
+## Fișiere pentru GitHub Pages
+
+În repository trebuie să fie direct în root:
+
+```txt
+index.html
+styles.css
+app.js
+supabase-config.js
+supabase-reset.sql
+README.md
+```
+
+Nu urca folderul ca subfolder dacă vrei să meargă pe GitHub Pages root.
+
+## Config actual
+
+`supabase-config.js` este deja completat cu:
+
+```txt
+https://xlelpnkljrweenhzhftn.supabase.co
+slavoliu.preda24@gmail.com
+```
+
+Cheia pusă este `sb_publishable_...`, nu secret key.

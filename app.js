@@ -1,846 +1,1067 @@
-import { supabaseConfig, ADMIN_EMAILS, TABLE_NAME } from './supabase-config.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { supabaseConfig, ADMIN_EMAILS, TABLE_NAME } from "./supabase-config.js";
 
-const seedEvents = [
+const DEFAULT_EVENTS = [
   {
-    title: 'Închidere proiect PW',
-    startDate: '2026-06-08',
-    endDate: '2026-06-08',
-    category: 'proiect',
-    priority: 'mare',
-    description: 'Finalizează și verifică proiectul de PW înainte de examen.'
+    id: "2026-06-08-inchidere-pw",
+    title: "Închidere proiect PW",
+    type: "proiect",
+    start_date: "2026-06-08",
+    end_date: "2026-06-08",
+    notes: "Finalizare și predare proiect PW.",
+    priority: 4
   },
   {
-    title: 'Examen PW',
-    startDate: '2026-06-09',
-    endDate: '2026-06-09',
-    category: 'examen',
-    priority: 'mare',
-    description: 'Zi de examen. Repetă rapid înainte, fără să te obosești inutil.'
+    id: "2026-06-09-examen-pw",
+    title: "Examen PW",
+    type: "examen",
+    start_date: "2026-06-09",
+    end_date: "2026-06-09",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Examen ICS',
-    startDate: '2026-06-11',
-    endDate: '2026-06-11',
-    category: 'examen',
-    priority: 'mare',
-    description: 'Examen ICS.'
+    id: "2026-06-11-examen-ics",
+    title: "Examen ICS",
+    type: "examen",
+    start_date: "2026-06-11",
+    end_date: "2026-06-11",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Proiect .NET',
-    startDate: '2026-06-11',
-    endDate: '2026-06-14',
-    category: 'proiect',
-    priority: 'mare',
-    description: 'Perioadă dedicată proiectului .NET.'
+    id: "2026-06-11-14-proiect-dotnet",
+    title: "Proiect .NET",
+    type: "proiect",
+    start_date: "2026-06-11",
+    end_date: "2026-06-14",
+    notes: "Lucru concentrat pe proiectul .NET.",
+    priority: 4
   },
   {
-    title: 'Proiect GIU',
-    startDate: '2026-06-14',
-    endDate: '2026-06-17',
-    category: 'proiect',
-    priority: 'mare',
-    description: 'Perioadă dedicată proiectului GIU.'
+    id: "2026-06-14-17-proiect-giu",
+    title: "Proiect GIU",
+    type: "proiect",
+    start_date: "2026-06-14",
+    end_date: "2026-06-17",
+    notes: "Lucru concentrat pe proiectul GIU.",
+    priority: 4
   },
   {
-    title: 'Examen GIU',
-    startDate: '2026-06-18',
-    endDate: '2026-06-18',
-    category: 'examen',
-    priority: 'mare',
-    description: 'Zi de examen GIU.'
+    id: "2026-06-18-examen-giu",
+    title: "Examen GIU",
+    type: "examen",
+    start_date: "2026-06-18",
+    end_date: "2026-06-18",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Învățat pentru .NET / licență / timp liber',
-    startDate: '2026-06-19',
-    endDate: '2026-06-21',
-    category: 'invatat',
-    priority: 'medie',
-    description: 'Dacă este cazul, înveți pentru .NET. Dacă nu, lucrezi la licență sau iei timp liber.'
+    id: "2026-06-19-21-invatat-dotnet-licenta-liber",
+    title: "Învățat pentru .NET / licență / timp liber",
+    type: "invatat",
+    start_date: "2026-06-19",
+    end_date: "2026-06-21",
+    notes: "Dacă e cazul: învățat pentru .NET. Dacă nu: licență sau timp liber.",
+    priority: 3
   },
   {
-    title: 'Examen .NET',
-    startDate: '2026-06-22',
-    endDate: '2026-06-22',
-    category: 'examen',
-    priority: 'mare',
-    description: 'Zi de examen .NET.'
+    id: "2026-06-22-examen-dotnet",
+    title: "Examen .NET",
+    type: "examen",
+    start_date: "2026-06-22",
+    end_date: "2026-06-22",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Licență',
-    startDate: '2026-06-23',
-    endDate: '2026-06-25',
-    category: 'licenta',
-    priority: 'mare',
-    description: 'Perioadă blocată pentru licență.'
+    id: "2026-06-23-25-licenta",
+    title: "Licență",
+    type: "licenta",
+    start_date: "2026-06-23",
+    end_date: "2026-06-25",
+    notes: "Perioadă principală pentru licență.",
+    priority: 5
   },
   {
-    title: 'Examen CELL',
-    startDate: '2026-06-26',
-    endDate: '2026-06-26',
-    category: 'examen',
-    priority: 'mare',
-    description: 'Zi de examen CELL.'
+    id: "2026-06-26-examen-cell",
+    title: "Examen CELL",
+    type: "examen",
+    start_date: "2026-06-26",
+    end_date: "2026-06-26",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Învățat pentru Sisteme de Operare',
-    startDate: '2026-06-27',
-    endDate: '2026-07-20',
-    category: 'invatat',
-    priority: 'mare',
-    description: 'Bloc mare de pregătire pentru Sisteme de Operare.'
+    id: "2026-06-27-2026-07-20-sisteme-operare",
+    title: "Învățat pentru Sisteme de Operare",
+    type: "invatat",
+    start_date: "2026-06-27",
+    end_date: "2026-07-20",
+    notes: "Pregătire pentru restanță / examen la Sisteme de Operare.",
+    priority: 4
   },
   {
-    title: 'Predare licență pentru sesiunea de toamnă',
-    startDate: '2026-07-22',
-    endDate: '2026-07-22',
-    category: 'predare',
-    priority: 'mare',
-    description: 'Deadline de predare pentru sesiunea de toamnă.'
+    id: "2026-07-22-predare-licenta-toamna",
+    title: "Predare licență pentru sesiunea de toamnă",
+    type: "predare",
+    start_date: "2026-07-22",
+    end_date: "2026-07-22",
+    notes: "",
+    priority: 5
   },
   {
-    title: 'Pregătire pentru examenul de licență',
-    startDate: '2026-07-23',
-    endDate: '2026-09-08',
-    category: 'licenta',
-    priority: 'mare',
-    description: 'Pregătire susținută pentru examenul de licență.'
+    id: "2026-07-23-2026-09-08-pregatire-licenta",
+    title: "Pregătire pentru examenul de licență",
+    type: "licenta",
+    start_date: "2026-07-23",
+    end_date: "2026-09-08",
+    notes: "Pregătire susținută pentru examenul de licență.",
+    priority: 5
   }
 ];
 
-const categoryLabels = {
-  examen: 'Examen',
-  proiect: 'Proiect',
-  licenta: 'Licență',
-  invatat: 'Învățat',
-  predare: 'Predare',
-  liber: 'Timp liber'
+const CATEGORY_LABELS = {
+  all: "Toate",
+  examen: "Examen",
+  proiect: "Proiect",
+  licenta: "Licență",
+  invatat: "Învățat",
+  predare: "Predare",
+  liber: "Timp liber"
 };
 
-const categoryColors = {
-  examen: '#ef4444',
-  proiect: '#7c3aed',
-  licenta: '#0f766e',
-  invatat: '#2563eb',
-  predare: '#d97706',
-  liber: '#64748b'
-};
-
-const monthNames = [
-  'Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie',
-  'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'
+const MONTHS = [
+  "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+  "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
 ];
 
-const weekdayNames = ['Lun', 'Mar', 'Mie', 'Joi', 'Vin', 'Sâm', 'Dum'];
+const WEEKDAYS = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
 
-const elements = {
-  syncStatus: document.getElementById('syncStatus'),
-  themeToggle: document.getElementById('themeToggle'),
-  authButton: document.getElementById('authButton'),
-  setupNotice: document.getElementById('setupNotice'),
-  downloadSeed: document.getElementById('downloadSeed'),
-  searchInput: document.getElementById('searchInput'),
-  monthFilter: document.getElementById('monthFilter'),
-  viewTimeline: document.getElementById('viewTimeline'),
-  viewCalendar: document.getElementById('viewCalendar'),
-  addEventBtn: document.getElementById('addEventBtn'),
-  filterChips: [...document.querySelectorAll('.chip')],
-  timelineView: document.getElementById('timelineView'),
-  calendarView: document.getElementById('calendarView'),
-  emptyState: document.getElementById('emptyState'),
-  resultCount: document.getElementById('resultCount'),
-  viewTitle: document.getElementById('viewTitle'),
-  totalEvents: document.getElementById('totalEvents'),
-  activeNow: document.getElementById('activeNow'),
-  nextEventDays: document.getElementById('nextEventDays'),
-  nextEventCard: document.getElementById('nextEventCard'),
-  adminHint: document.getElementById('adminHint'),
-  seedButton: document.getElementById('seedButton'),
-  importButton: document.getElementById('importButton'),
-  exportButton: document.getElementById('exportButton'),
-  printButton: document.getElementById('printButton'),
-  importFile: document.getElementById('importFile'),
-  eventDialog: document.getElementById('eventDialog'),
-  eventForm: document.getElementById('eventForm'),
-  eventDialogTitle: document.getElementById('eventDialogTitle'),
-  eventId: document.getElementById('eventId'),
-  eventTitle: document.getElementById('eventTitle'),
-  eventStart: document.getElementById('eventStart'),
-  eventEnd: document.getElementById('eventEnd'),
-  eventCategory: document.getElementById('eventCategory'),
-  eventPriority: document.getElementById('eventPriority'),
-  eventDescription: document.getElementById('eventDescription'),
-  deleteEventBtn: document.getElementById('deleteEventBtn'),
-  authDialog: document.getElementById('authDialog'),
-  authForm: document.getElementById('authForm'),
-  authEmail: document.getElementById('authEmail'),
-  authPassword: document.getElementById('authPassword'),
-  registerBtn: document.getElementById('registerBtn'),
-  toast: document.getElementById('toast')
+const els = {
+  body: document.body,
+  authScreen: document.getElementById("authScreen"),
+  appShell: document.getElementById("appShell"),
+  loginForm: document.getElementById("loginForm"),
+  loginEmail: document.getElementById("loginEmail"),
+  loginPassword: document.getElementById("loginPassword"),
+  loginButton: document.getElementById("loginButton"),
+  loginMessage: document.getElementById("loginMessage"),
+  logoutButton: document.getElementById("logoutButton"),
+  themeToggle: document.getElementById("themeToggle"),
+  syncPill: document.getElementById("syncPill"),
+  searchInput: document.getElementById("searchInput"),
+  monthSelect: document.getElementById("monthSelect"),
+  filterChips: document.getElementById("filterChips"),
+  viewButtons: Array.from(document.querySelectorAll(".view-button")),
+  addEventButton: document.getElementById("addEventButton"),
+  systemNotice: document.getElementById("systemNotice"),
+  statTotal: document.getElementById("statTotal"),
+  statActive: document.getElementById("statActive"),
+  statNext: document.getElementById("statNext"),
+  nextEventBox: document.getElementById("nextEventBox"),
+  resultCount: document.getElementById("resultCount"),
+  viewTitle: document.getElementById("viewTitle"),
+  timelineView: document.getElementById("timelineView"),
+  calendarView: document.getElementById("calendarView"),
+  listView: document.getElementById("listView"),
+  refreshButton: document.getElementById("refreshButton"),
+  exportButton: document.getElementById("exportButton"),
+  importInput: document.getElementById("importInput"),
+  dedupeButton: document.getElementById("dedupeButton"),
+  seedButton: document.getElementById("seedButton"),
+  dialog: document.getElementById("eventDialog"),
+  eventForm: document.getElementById("eventForm"),
+  dialogTitle: document.getElementById("dialogTitle"),
+  eventId: document.getElementById("eventId"),
+  eventTitle: document.getElementById("eventTitle"),
+  eventType: document.getElementById("eventType"),
+  eventPriority: document.getElementById("eventPriority"),
+  eventStart: document.getElementById("eventStart"),
+  eventEnd: document.getElementById("eventEnd"),
+  eventNotes: document.getElementById("eventNotes"),
+  formMessage: document.getElementById("formMessage"),
+  deleteEventButton: document.getElementById("deleteEventButton"),
+  closeDialogButton: document.getElementById("closeDialogButton"),
+  cancelDialogButton: document.getElementById("cancelDialogButton"),
+  saveEventButton: document.getElementById("saveEventButton"),
+  emptyTemplate: document.getElementById("emptyStateTemplate")
 };
 
 const state = {
-  events: [],
-  filteredEvents: [],
-  categoryFilter: 'all',
-  view: 'timeline',
-  supabaseReady: false,
-  user: null,
-  isAdmin: false,
   supabase: null,
-  channel: null
+  session: null,
+  userEmail: null,
+  rawEvents: [],
+  events: [],
+  filter: "all",
+  view: "timeline",
+  month: "all",
+  realtimeChannel: null,
+  loading: false
 };
 
-function hasSupabaseConfig() {
-  return supabaseConfig &&
-    supabaseConfig.url &&
-    !supabaseConfig.url.includes('PASTE') &&
-    supabaseConfig.anonKey &&
-    !supabaseConfig.anonKey.includes('PASTE');
+init();
+
+async function init() {
+  applyStoredTheme();
+  bindEvents();
+  fillMonthSelect();
+
+  try {
+    validateConfig();
+    state.supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+
+    const { data, error } = await state.supabase.auth.getSession();
+    if (error) throw error;
+
+    await handleSession(data?.session ?? null);
+
+    state.supabase.auth.onAuthStateChange((_event, session) => {
+      handleSession(session).catch((err) => showLoginError(err.message));
+    });
+  } catch (err) {
+    showOnlyLogin();
+    showLoginError(`Configurația Supabase nu este validă: ${friendlyError(err)}`);
+  } finally {
+    document.body.classList.remove("loading");
+  }
 }
 
-function showToast(message) {
-  elements.toast.textContent = message;
-  elements.toast.classList.add('show');
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => elements.toast.classList.remove('show'), 3200);
+function validateConfig() {
+  if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
+    throw new Error("lipsește url sau anonKey în supabase-config.js");
+  }
+
+  if (!supabaseConfig.url.includes(".supabase.co")) {
+    throw new Error("Project URL nu pare să fie URL Supabase");
+  }
+
+  if (!Array.isArray(ADMIN_EMAILS) || ADMIN_EMAILS.length === 0) {
+    throw new Error("ADMIN_EMAILS este gol");
+  }
 }
 
-function parseLocalDate(dateString) {
-  const [year, month, day] = dateString.split('-').map(Number);
-  return new Date(year, month - 1, day);
+function bindEvents() {
+  els.loginEmail.value = ADMIN_EMAILS[0] ?? "";
+
+  els.loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await login();
+  });
+
+  els.logoutButton.addEventListener("click", logout);
+
+  els.themeToggle.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(next);
+  });
+
+  els.searchInput.addEventListener("input", render);
+  els.monthSelect.addEventListener("change", () => {
+    state.month = els.monthSelect.value;
+    render();
+  });
+
+  els.filterChips.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-filter]");
+    if (!button) return;
+    state.filter = button.dataset.filter;
+    document.querySelectorAll(".chip").forEach((chip) => chip.classList.toggle("active", chip === button));
+    render();
+  });
+
+  els.viewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.view = button.dataset.view;
+      els.viewButtons.forEach((item) => item.classList.toggle("active", item === button));
+      render();
+    });
+  });
+
+  els.addEventButton.addEventListener("click", () => openEventDialog());
+  els.refreshButton.addEventListener("click", () => loadEvents({ showSuccess: true }));
+  els.exportButton.addEventListener("click", exportJson);
+  els.importInput.addEventListener("change", importJson);
+  els.dedupeButton.addEventListener("click", dedupeDatabase);
+  els.seedButton.addEventListener("click", resetToDefaultPlan);
+
+  els.eventForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveEvent();
+  });
+
+  els.deleteEventButton.addEventListener("click", deleteSelectedEvent);
+  els.closeDialogButton.addEventListener("click", closeDialog);
+  els.cancelDialogButton.addEventListener("click", closeDialog);
 }
 
-function toIsoDate(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+async function login() {
+  hideMessage(els.loginMessage);
+  els.loginButton.disabled = true;
+  els.loginButton.textContent = "Se conectează...";
+
+  try {
+    const email = els.loginEmail.value.trim().toLowerCase();
+    const password = els.loginPassword.value;
+
+    if (!ADMIN_EMAILS.map((item) => item.toLowerCase()).includes(email)) {
+      throw new Error("Emailul introdus nu este în lista de admini din supabase-config.js.");
+    }
+
+    const { error } = await state.supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  } catch (err) {
+    showLoginError(friendlyError(err));
+  } finally {
+    els.loginButton.disabled = false;
+    els.loginButton.textContent = "Intră în calendar";
+  }
 }
 
-function formatDate(dateString) {
-  const date = parseLocalDate(dateString);
-  return new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+async function logout() {
+  clearRealtime();
+  await state.supabase.auth.signOut();
+  state.session = null;
+  state.userEmail = null;
+  state.rawEvents = [];
+  state.events = [];
+  showOnlyLogin();
 }
 
-function formatRange(event) {
-  if (event.startDate === event.endDate) return formatDate(event.startDate);
-  return `${formatDate(event.startDate)} – ${formatDate(event.endDate)}`;
+async function handleSession(session) {
+  state.session = session;
+  const email = session?.user?.email?.toLowerCase() ?? null;
+  state.userEmail = email;
+
+  if (!session || !email) {
+    clearRealtime();
+    showOnlyLogin();
+    return;
+  }
+
+  if (!ADMIN_EMAILS.map((item) => item.toLowerCase()).includes(email)) {
+    await state.supabase.auth.signOut();
+    showOnlyLogin();
+    showLoginError("Contul este autentificat, dar nu este admin pentru acest calendar.");
+    return;
+  }
+
+  hideMessage(els.loginMessage);
+  showApp();
+  await loadEvents();
+  subscribeRealtime();
 }
 
-function getDurationDays(event) {
-  const start = parseLocalDate(event.startDate);
-  const end = parseLocalDate(event.endDate);
-  return Math.round((end - start) / 86400000) + 1;
+function showOnlyLogin() {
+  els.authScreen.classList.remove("hidden");
+  els.appShell.classList.add("hidden");
 }
 
-function todayAtMidnight() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+function showApp() {
+  els.authScreen.classList.add("hidden");
+  els.appShell.classList.remove("hidden");
+  setSync("online", "Conectat");
 }
 
-function daysUntil(dateString) {
-  const today = todayAtMidnight();
-  const date = parseLocalDate(dateString);
-  return Math.ceil((date - today) / 86400000);
+async function loadEvents(options = {}) {
+  if (!state.supabase || state.loading) return;
+  state.loading = true;
+  setSync("", "Se încarcă...");
+  hideNotice();
+
+  try {
+    const { data, error } = await state.supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .order("start_date", { ascending: true })
+      .order("end_date", { ascending: true });
+
+    if (error) throw error;
+
+    state.rawEvents = Array.isArray(data) ? data.map(normalizeEvent).filter(Boolean) : [];
+    state.events = uniqueEvents(state.rawEvents);
+
+    if (state.rawEvents.length !== state.events.length) {
+      showNotice(`Am ascuns ${state.rawEvents.length - state.events.length} duplicate din afișare. Apasă „Curăță duplicate” ca să le ștergi și din baza de date.`, "error");
+    } else if (state.events.length === 0) {
+      showNotice("Nu există evenimente în baza de date. Apasă „Resetează planul inițial” ca să încarci planul din iunie-septembrie 2026.");
+    } else if (options.showSuccess) {
+      showNotice("Calendar reîncărcat din Supabase.", "success");
+    }
+
+    setSync("online", "Supabase live");
+    render();
+  } catch (err) {
+    state.rawEvents = [];
+    state.events = [];
+    setSync("error", "Eroare Supabase");
+    showNotice(`Nu pot citi calendarul din Supabase: ${friendlyError(err)}. Rulează fișierul supabase-reset.sql în SQL Editor și verifică userul din Authentication.`, "error");
+    render();
+  } finally {
+    state.loading = false;
+  }
+}
+
+function subscribeRealtime() {
+  clearRealtime();
+  try {
+    state.realtimeChannel = state.supabase
+      .channel("calendar_events_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: TABLE_NAME }, () => loadEvents())
+      .subscribe();
+  } catch {
+    // Realtime este bonus. Aplicația rămâne funcțională și fără el.
+  }
+}
+
+function clearRealtime() {
+  if (state.realtimeChannel && state.supabase) {
+    state.supabase.removeChannel(state.realtimeChannel);
+  }
+  state.realtimeChannel = null;
 }
 
 function normalizeEvent(event) {
+  const start = event.start_date ?? event.start ?? event.startDate;
+  const end = event.end_date ?? event.end ?? event.endDate ?? start;
+  const title = String(event.title ?? "").trim();
+  const type = String(event.type ?? event.category ?? "invatat").trim();
+
+  if (!title || !start || !end) return null;
+
   return {
-    id: event.id || crypto.randomUUID(),
-    title: String(event.title || '').trim(),
-    startDate: event.startDate,
-    endDate: event.endDate || event.startDate,
-    category: event.category || 'invatat',
-    priority: event.priority || 'medie',
-    description: event.description || ''
+    id: String(event.id ?? makeId(title, start)),
+    title,
+    type: CATEGORY_LABELS[type] ? type : "invatat",
+    start_date: toISODate(start),
+    end_date: toISODate(end),
+    notes: String(event.notes ?? event.description ?? "").trim(),
+    priority: Number(event.priority ?? 3),
+    created_at: event.created_at ?? null,
+    updated_at: event.updated_at ?? null
   };
 }
 
-function sortEvents(events) {
-  return [...events].sort((a, b) => a.startDate.localeCompare(b.startDate) || a.title.localeCompare(b.title));
-}
-
-function canEdit() {
-  if (!state.supabaseReady) return true;
-  return state.isAdmin;
-}
-
-function updateAdminUi() {
-  const editable = canEdit();
-  elements.addEventBtn.disabled = !editable;
-  elements.seedButton.disabled = !editable;
-  elements.importButton.disabled = !editable;
-
-  if (!state.supabaseReady) {
-    elements.adminHint.textContent = 'Mod local: poți edita aici, dar salvarea rămâne în browser. Conectează Supabase pentru cloud.';
-    return;
+function uniqueEvents(events) {
+  const map = new Map();
+  for (const event of events) {
+    const key = event.id || naturalKey(event);
+    if (!map.has(key)) map.set(key, event);
   }
 
-  if (!state.user) {
-    elements.adminHint.textContent = 'Loghează-te cu emailul de admin ca să poți edita evenimentele.';
-    return;
+  const naturalMap = new Map();
+  for (const event of map.values()) {
+    const key = naturalKey(event);
+    if (!naturalMap.has(key)) naturalMap.set(key, event);
   }
 
-  if (state.isAdmin) {
-    elements.adminHint.textContent = `Conectat ca admin: ${state.user.email}.`;
-  } else {
-    elements.adminHint.textContent = `Conectat ca ${state.user.email}, dar emailul nu este în ADMIN_EMAILS.`;
-  }
+  return Array.from(naturalMap.values()).sort(compareEvents);
 }
 
-function setSyncStatus(type, text) {
-  elements.syncStatus.className = `status-pill ${type}`;
-  elements.syncStatus.textContent = text;
+function naturalKey(event) {
+  return [event.title.toLowerCase(), event.type, event.start_date, event.end_date].join("|");
 }
 
-function saveLocalEvents() {
-  localStorage.setItem('calendar_2026_events', JSON.stringify(state.events));
+function compareEvents(a, b) {
+  return a.start_date.localeCompare(b.start_date)
+    || b.priority - a.priority
+    || a.title.localeCompare(b.title, "ro");
 }
 
-function loadLocalEvents() {
-  const stored = localStorage.getItem('calendar_2026_events');
-  if (!stored) {
-    state.events = seedEvents.map(normalizeEvent);
-    saveLocalEvents();
-    return;
-  }
-  try {
-    state.events = JSON.parse(stored).map(normalizeEvent);
-  } catch {
-    state.events = seedEvents.map(normalizeEvent);
-    saveLocalEvents();
-  }
-}
+function getFilteredEvents() {
+  const term = els.searchInput.value.trim().toLowerCase();
 
-async function initSupabase() {
-  if (!hasSupabaseConfig()) {
-    elements.setupNotice.classList.remove('hidden');
-    setSyncStatus('local', 'Mod local');
-    loadLocalEvents();
-    render();
-    updateAdminUi();
-    return;
-  }
-
-  try {
-    state.supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
-    state.supabaseReady = true;
-    setSyncStatus('cloud', 'Cloud conectat');
-    elements.setupNotice.classList.add('hidden');
-
-    const { data: { session } } = await state.supabase.auth.getSession();
-    state.user = session?.user || null;
-    state.isAdmin = Boolean(state.user && ADMIN_EMAILS.map(e => e.toLowerCase()).includes(state.user.email.toLowerCase()));
-    elements.authButton.textContent = state.user ? 'Logout' : 'Login admin';
-    updateAdminUi();
-
-    state.supabase.auth.onAuthStateChange((_event, session) => {
-      state.user = session?.user || null;
-      state.isAdmin = Boolean(state.user && ADMIN_EMAILS.map(e => e.toLowerCase()).includes(state.user.email.toLowerCase()));
-      elements.authButton.textContent = state.user ? 'Logout' : 'Login admin';
-      updateAdminUi();
-      render();
-    });
-
-    await fetchCloudEvents();
-
-    state.channel = state.supabase
-      .channel('calendar-events-live')
-      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE_NAME }, async () => {
-        await fetchCloudEvents();
-        setSyncStatus('cloud', 'Sincronizat live');
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') setSyncStatus('cloud', 'Sincronizat live');
-      });
-  } catch (error) {
-    console.error(error);
-    elements.setupNotice.classList.remove('hidden');
-    setSyncStatus('error', 'Supabase invalid');
-    loadLocalEvents();
-    render();
-    updateAdminUi();
-    showToast('Supabase nu este configurat corect. Rulez local.');
-  }
-}
-
-function mapDbEvent(row) {
-  return normalizeEvent({
-    id: row.id,
-    title: row.title,
-    startDate: row.start_date,
-    endDate: row.end_date,
-    category: row.category,
-    priority: row.priority,
-    description: row.description
-  });
-}
-
-function toDbPayload(event) {
-  return {
-    title: event.title,
-    start_date: event.startDate,
-    end_date: event.endDate,
-    category: event.category,
-    priority: event.priority,
-    description: event.description,
-    updated_at: new Date().toISOString(),
-    updated_by: state.user?.email || null
-  };
-}
-
-async function fetchCloudEvents() {
-  const { data, error } = await state.supabase
-    .from(TABLE_NAME)
-    .select('*')
-    .order('start_date', { ascending: true });
-
-  if (error) throw error;
-  state.events = (data || []).map(mapDbEvent);
-  render();
-}
-
-function applyFilters() {
-  const text = elements.searchInput.value.trim().toLowerCase();
-  const month = elements.monthFilter.value;
-  state.filteredEvents = sortEvents(state.events).filter(event => {
-    const inCategory = state.categoryFilter === 'all' || event.category === state.categoryFilter;
-    const haystack = `${event.title} ${event.description} ${categoryLabels[event.category]}`.toLowerCase();
-    const inSearch = !text || haystack.includes(text);
-    const inMonth = month === 'all' || event.startDate.startsWith(month) || event.endDate.startsWith(month) || rangeTouchesMonth(event, month);
-    return inCategory && inSearch && inMonth;
-  });
-}
-
-function rangeTouchesMonth(event, monthValue) {
-  const monthStart = parseLocalDate(`${monthValue}-01`);
-  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
-  const start = parseLocalDate(event.startDate);
-  const end = parseLocalDate(event.endDate);
-  return start <= monthEnd && end >= monthStart;
-}
-
-function updateStats() {
-  elements.totalEvents.textContent = state.events.length;
-  const today = todayAtMidnight();
-  const active = state.events.filter(event => parseLocalDate(event.startDate) <= today && parseLocalDate(event.endDate) >= today);
-  elements.activeNow.textContent = active.length;
-
-  const upcoming = sortEvents(state.events).find(event => parseLocalDate(event.endDate) >= today);
-  if (!upcoming) {
-    elements.nextEventDays.textContent = '—';
-    elements.nextEventCard.className = 'next-card empty';
-    elements.nextEventCard.textContent = 'Nu există evenimente viitoare.';
-    return;
-  }
-
-  const days = Math.max(0, daysUntil(upcoming.startDate));
-  elements.nextEventDays.textContent = String(days);
-  elements.nextEventCard.className = 'next-card';
-  elements.nextEventCard.innerHTML = `
-    <strong>${escapeHtml(upcoming.title)}</strong>
-    <p>${formatRange(upcoming)}</p>
-    <div class="badges">
-      <span class="badge category" style="--event-color:${categoryColors[upcoming.category]}">${categoryLabels[upcoming.category]}</span>
-      <span class="badge">${getDurationDays(upcoming)} zile</span>
-    </div>
-  `;
+  return state.events.filter((event) => {
+    const matchesType = state.filter === "all" || event.type === state.filter;
+    const matchesSearch = !term || [event.title, event.notes, CATEGORY_LABELS[event.type]]
+      .join(" ")
+      .toLowerCase()
+      .includes(term);
+    const matchesMonth = state.month === "all" || eventTouchesMonth(event, state.month);
+    return matchesType && matchesSearch && matchesMonth;
+  }).sort(compareEvents);
 }
 
 function render() {
-  applyFilters();
+  const filtered = getFilteredEvents();
   updateStats();
-  elements.resultCount.textContent = `${state.filteredEvents.length} rezultate`;
-  elements.viewTitle.textContent = state.view === 'timeline' ? 'Timeline complet' : 'Calendar pe luni';
-  elements.timelineView.classList.toggle('hidden', state.view !== 'timeline');
-  elements.calendarView.classList.toggle('hidden', state.view !== 'calendar');
+  updateResultCount(filtered.length);
+  updateViewsVisibility();
 
-  if (state.filteredEvents.length === 0) {
-    elements.emptyState.classList.remove('hidden');
-    elements.timelineView.innerHTML = '';
-    elements.calendarView.innerHTML = '';
-    return;
-  }
-  elements.emptyState.classList.add('hidden');
-
-  if (state.view === 'timeline') renderTimeline();
-  if (state.view === 'calendar') renderCalendar();
+  if (state.view === "timeline") renderTimeline(filtered);
+  if (state.view === "calendar") renderCalendar(filtered);
+  if (state.view === "list") renderList(filtered);
 }
 
-function renderTimeline() {
-  const groups = new Map();
-  state.filteredEvents.forEach(event => {
-    const date = parseLocalDate(event.startDate);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(event);
-  });
+function updateViewsVisibility() {
+  els.timelineView.classList.toggle("hidden", state.view !== "timeline");
+  els.calendarView.classList.toggle("hidden", state.view !== "calendar");
+  els.listView.classList.toggle("hidden", state.view !== "list");
 
-  elements.timelineView.innerHTML = [...groups.entries()].map(([key, events]) => {
-    const [year, month] = key.split('-').map(Number);
-    return `
-      <div class="month-group">
-        <h4 class="month-title">${monthNames[month - 1]} ${year}</h4>
-        ${events.map(renderEventCard).join('')}
+  els.viewTitle.textContent = {
+    timeline: "Timeline complet",
+    calendar: "Calendar pe luni",
+    list: "Listă editabilă"
+  }[state.view];
+}
+
+function updateResultCount(count) {
+  els.resultCount.textContent = `${count} ${count === 1 ? "rezultat" : "rezultate"}`;
+}
+
+function updateStats() {
+  const today = stripTime(new Date());
+  const total = state.events.length;
+  const active = state.events.filter((event) => dateInRange(today, parseDate(event.start_date), parseDate(event.end_date))).length;
+  const next = state.events
+    .filter((event) => parseDate(event.end_date) >= today)
+    .sort(compareEvents)[0];
+
+  els.statTotal.textContent = total;
+  els.statActive.textContent = active;
+
+  if (next) {
+    const days = Math.max(0, diffDays(today, parseDate(next.start_date)));
+    els.statNext.textContent = String(days);
+    els.nextEventBox.innerHTML = `
+      <strong>${escapeHtml(next.title)}</strong>
+      <span>${formatRange(next)} · ${CATEGORY_LABELS[next.type]}</span>
+    `;
+  } else {
+    els.statNext.textContent = "—";
+    els.nextEventBox.textContent = "Nu există evenimente viitoare.";
+  }
+}
+
+function renderTimeline(events) {
+  els.timelineView.innerHTML = "";
+  if (!events.length) return renderEmpty(els.timelineView);
+
+  const groups = groupByMonth(events);
+  for (const [monthKey, items] of groups) {
+    const block = document.createElement("section");
+    block.className = "month-block";
+    block.innerHTML = `<h3 class="month-title">${monthNameFromKey(monthKey)}</h3>`;
+
+    for (const event of items) {
+      const item = document.createElement("article");
+      item.className = "timeline-item";
+      const start = parseDate(event.start_date);
+      item.innerHTML = `
+        <div class="timeline-date">
+          <strong>${String(start.getDate()).padStart(2, "0")}</strong>
+          <span>${MONTHS[start.getMonth()].slice(0, 3)} ${start.getFullYear()}</span>
+        </div>
+        ${eventCardHtml(event)}
+      `;
+      block.appendChild(item);
+    }
+
+    els.timelineView.appendChild(block);
+  }
+
+  bindEventCardActions(els.timelineView);
+}
+
+function renderCalendar(events) {
+  els.calendarView.innerHTML = "";
+  if (!events.length) return renderEmpty(els.calendarView);
+
+  const months = getMonthsForCalendar(events);
+  for (const key of months) {
+    const [year, month] = key.split("-").map(Number);
+    const monthWrap = document.createElement("section");
+    monthWrap.className = "calendar-month";
+    monthWrap.innerHTML = `
+      <div class="calendar-header">
+        <h3>${MONTHS[month - 1]} ${year}</h3>
+        <span class="count-pill">${events.filter((event) => eventTouchesMonth(event, key)).length} evenimente</span>
       </div>
     `;
-  }).join('');
 
-  elements.timelineView.querySelectorAll('[data-edit]').forEach(button => {
-    button.addEventListener('click', () => openEventDialog(button.dataset.edit));
+    const grid = document.createElement("div");
+    grid.className = "calendar-grid";
+    WEEKDAYS.forEach((day) => {
+      const el = document.createElement("div");
+      el.className = "weekday";
+      el.textContent = day;
+      grid.appendChild(el);
+    });
+
+    const first = new Date(year, month - 1, 1);
+    const startOffset = (first.getDay() + 6) % 7;
+    const start = new Date(year, month - 1, 1 - startOffset);
+
+    for (let i = 0; i < 42; i += 1) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      const dayISO = toISODate(day);
+      const inCurrentMonth = day.getMonth() === month - 1;
+      const dayEvents = events.filter((event) => dateInRange(day, parseDate(event.start_date), parseDate(event.end_date)));
+
+      const cell = document.createElement("div");
+      cell.className = `day-cell${inCurrentMonth ? "" : " muted"}${isSameDay(day, new Date()) ? " today" : ""}`;
+      cell.innerHTML = `
+        <div class="day-number">${day.getDate()}</div>
+        <div class="day-events"></div>
+      `;
+
+      const holder = cell.querySelector(".day-events");
+      dayEvents.forEach((event) => {
+        const pill = document.createElement("button");
+        pill.className = `calendar-pill ${event.type}`;
+        pill.type = "button";
+        pill.dataset.eventId = event.id;
+        pill.title = `${event.title} · ${formatRange(event)}`;
+        pill.textContent = event.title;
+        holder.appendChild(pill);
+      });
+
+      grid.appendChild(cell);
+    }
+
+    monthWrap.appendChild(grid);
+    els.calendarView.appendChild(monthWrap);
+  }
+
+  els.calendarView.querySelectorAll("[data-event-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const event = state.events.find((item) => item.id === button.dataset.eventId);
+      if (event) openEventDialog(event);
+    });
   });
 }
 
-function renderEventCard(event) {
-  const color = categoryColors[event.category] || categoryColors.invatat;
-  const duration = getDurationDays(event);
-  const editable = canEdit();
-  return `
-    <article class="event-card" style="--event-color:${color}">
-      <div class="event-date">
-        <strong>${formatRange(event)}</strong>
-        <span>${duration === 1 ? '1 zi' : `${duration} zile`}</span>
+function renderList(events) {
+  els.listView.innerHTML = "";
+  if (!events.length) return renderEmpty(els.listView);
+
+  for (const event of events) {
+    const row = document.createElement("article");
+    row.className = "list-row";
+    row.innerHTML = `
+      <div class="list-date">${formatRange(event)}</div>
+      <div>
+        <strong>${escapeHtml(event.title)}</strong>
+        <div class="event-meta">
+          <span class="meta-pill">${CATEGORY_LABELS[event.type]}</span>
+          <span class="meta-pill">Prioritate ${event.priority}</span>
+        </div>
+        ${event.notes ? `<p class="event-notes">${escapeHtml(event.notes)}</p>` : ""}
       </div>
-      <div class="event-body">
-        <h4>${escapeHtml(event.title)}</h4>
-        <div class="event-meta">${categoryLabels[event.category]} • Prioritate ${event.priority}</div>
-        ${event.description ? `<p class="event-desc">${escapeHtml(event.description)}</p>` : ''}
-        <div class="badges">
-          <span class="badge category">${categoryLabels[event.category]}</span>
-          <span class="badge">${duration === 1 ? 'single day' : 'interval'}</span>
+      <div class="card-actions">
+        <button class="small-button" data-edit="${escapeHtml(event.id)}" type="button">Editează</button>
+      </div>
+    `;
+    els.listView.appendChild(row);
+  }
+
+  bindEventCardActions(els.listView);
+}
+
+function renderEmpty(container) {
+  container.innerHTML = "";
+  container.appendChild(els.emptyTemplate.content.cloneNode(true));
+}
+
+function eventCardHtml(event) {
+  return `
+    <article class="event-card ${event.type}">
+      <div class="event-title-row">
+        <div>
+          <h3>${escapeHtml(event.title)}</h3>
+          <div class="event-meta">
+            <span class="meta-pill">${formatRange(event)}</span>
+            <span class="meta-pill">${CATEGORY_LABELS[event.type]}</span>
+            <span class="meta-pill">Prioritate ${event.priority}</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="small-button" data-edit="${escapeHtml(event.id)}" type="button">Editează</button>
         </div>
       </div>
-      <div class="event-actions">
-        <button type="button" data-edit="${event.id}" ${editable ? '' : 'disabled'}>Editează</button>
-      </div>
+      ${event.notes ? `<p class="event-notes">${escapeHtml(event.notes)}</p>` : ""}
     </article>
   `;
 }
 
-function renderCalendar() {
-  const months = elements.monthFilter.value === 'all'
-    ? ['2026-06', '2026-07', '2026-08', '2026-09']
-    : [elements.monthFilter.value];
-
-  elements.calendarView.innerHTML = months.map(renderMonthCalendar).join('');
-}
-
-function renderMonthCalendar(monthValue) {
-  const [year, month] = monthValue.split('-').map(Number);
-  const first = new Date(year, month - 1, 1);
-  const last = new Date(year, month, 0);
-  const startOffset = (first.getDay() + 6) % 7;
-  const totalCells = Math.ceil((startOffset + last.getDate()) / 7) * 7;
-  const cells = [];
-
-  for (let i = 0; i < totalCells; i++) {
-    const date = new Date(year, month - 1, 1 - startOffset + i);
-    const iso = toIsoDate(date);
-    const dim = date.getMonth() !== month - 1;
-    const dayEvents = state.filteredEvents.filter(event => parseLocalDate(event.startDate) <= date && parseLocalDate(event.endDate) >= date);
-    cells.push(`
-      <div class="day-cell ${dim ? 'dim' : ''}">
-        <div class="day-number">${date.getDate()}</div>
-        <div class="day-events">
-          ${dayEvents.slice(0, 3).map(event => `<span class="day-event" style="--event-color:${categoryColors[event.category]}" title="${escapeAttr(event.title)}">${escapeHtml(event.title)}</span>`).join('')}
-          ${dayEvents.length > 3 ? `<span class="badge">+${dayEvents.length - 3}</span>` : ''}
-        </div>
-      </div>
-    `);
-  }
-
-  return `
-    <section class="month-calendar">
-      <h4>${monthNames[month - 1]} ${year}</h4>
-      <div class="weekdays">${weekdayNames.map(day => `<span>${day}</span>`).join('')}</div>
-      <div class="days-grid">${cells.join('')}</div>
-    </section>
-  `;
-}
-
-function openEventDialog(id = null) {
-  if (!canEdit()) {
-    showToast('Trebuie să fii admin ca să editezi în cloud.');
-    return;
-  }
-
-  const event = id ? state.events.find(item => item.id === id) : null;
-  elements.eventDialogTitle.textContent = event ? 'Editează eveniment' : 'Adaugă eveniment';
-  elements.eventId.value = event?.id || '';
-  elements.eventTitle.value = event?.title || '';
-  elements.eventStart.value = event?.startDate || '2026-06-08';
-  elements.eventEnd.value = event?.endDate || elements.eventStart.value;
-  elements.eventCategory.value = event?.category || 'examen';
-  elements.eventPriority.value = event?.priority || 'medie';
-  elements.eventDescription.value = event?.description || '';
-  elements.deleteEventBtn.classList.toggle('hidden', !event);
-  elements.eventDialog.showModal();
-}
-
-function closeEventDialog() {
-  elements.eventDialog.close();
-}
-
-async function saveEventFromForm() {
-  if (!canEdit()) return;
-  const event = normalizeEvent({
-    id: elements.eventId.value || undefined,
-    title: elements.eventTitle.value,
-    startDate: elements.eventStart.value,
-    endDate: elements.eventEnd.value,
-    category: elements.eventCategory.value,
-    priority: elements.eventPriority.value,
-    description: elements.eventDescription.value
+function bindEventCardActions(root) {
+  root.querySelectorAll("[data-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const event = state.events.find((item) => item.id === button.dataset.edit);
+      if (event) openEventDialog(event);
+    });
   });
+}
 
-  if (parseLocalDate(event.endDate) < parseLocalDate(event.startDate)) {
-    showToast('Data de final nu poate fi înainte de start.');
+function openEventDialog(event = null) {
+  hideMessage(els.formMessage);
+  els.eventForm.reset();
+
+  if (event) {
+    els.dialogTitle.textContent = "Editează eveniment";
+    els.eventId.value = event.id;
+    els.eventTitle.value = event.title;
+    els.eventType.value = event.type;
+    els.eventPriority.value = String(event.priority ?? 3);
+    els.eventStart.value = event.start_date;
+    els.eventEnd.value = event.end_date;
+    els.eventNotes.value = event.notes ?? "";
+    els.deleteEventButton.classList.remove("hidden");
+  } else {
+    els.dialogTitle.textContent = "Adaugă eveniment";
+    els.eventId.value = "";
+    els.eventType.value = "invatat";
+    els.eventPriority.value = "3";
+    els.eventStart.value = "2026-06-01";
+    els.eventEnd.value = "2026-06-01";
+    els.deleteEventButton.classList.add("hidden");
+  }
+
+  els.dialog.showModal();
+  setTimeout(() => els.eventTitle.focus(), 50);
+}
+
+function closeDialog() {
+  els.dialog.close();
+}
+
+async function saveEvent() {
+  hideMessage(els.formMessage);
+  els.saveEventButton.disabled = true;
+  els.saveEventButton.textContent = "Se salvează...";
+
+  try {
+    const event = {
+      id: els.eventId.value || makeId(els.eventTitle.value, els.eventStart.value),
+      title: els.eventTitle.value.trim(),
+      type: els.eventType.value,
+      start_date: els.eventStart.value,
+      end_date: els.eventEnd.value,
+      notes: els.eventNotes.value.trim(),
+      priority: Number(els.eventPriority.value)
+    };
+
+    if (!event.title) throw new Error("Titlul este obligatoriu.");
+    if (parseDate(event.start_date) > parseDate(event.end_date)) {
+      throw new Error("Data de început nu poate fi după data de final.");
+    }
+
+    const { error } = await state.supabase
+      .from(TABLE_NAME)
+      .upsert(event, { onConflict: "id" });
+
+    if (error) throw error;
+
+    closeDialog();
+    await loadEvents({ showSuccess: true });
+  } catch (err) {
+    showFormError(friendlyError(err));
+  } finally {
+    els.saveEventButton.disabled = false;
+    els.saveEventButton.textContent = "Salvează";
+  }
+}
+
+async function deleteSelectedEvent() {
+  const id = els.eventId.value;
+  if (!id) return;
+  const ok = confirm("Sigur ștergi acest eveniment?");
+  if (!ok) return;
+
+  try {
+    const { error } = await state.supabase.from(TABLE_NAME).delete().eq("id", id);
+    if (error) throw error;
+    closeDialog();
+    await loadEvents({ showSuccess: true });
+  } catch (err) {
+    showFormError(friendlyError(err));
+  }
+}
+
+async function dedupeDatabase() {
+  const duplicates = getDuplicateIds(state.rawEvents);
+  if (duplicates.length === 0) {
+    showNotice("Nu există duplicate în baza de date.", "success");
     return;
   }
 
-  if (state.supabaseReady) {
-    const payload = toDbPayload(event);
-    if (elements.eventId.value) {
-      const { error } = await state.supabase.from(TABLE_NAME).update(payload).eq('id', event.id);
-      if (error) throw error;
-    } else {
-      const { error } = await state.supabase.from(TABLE_NAME).insert(payload);
-      if (error) throw error;
-    }
-  } else {
-    const index = state.events.findIndex(item => item.id === event.id);
-    if (index >= 0) state.events[index] = event;
-    else state.events.push(event);
-    saveLocalEvents();
-    render();
-  }
-
-  closeEventDialog();
-  showToast('Eveniment salvat.');
-}
-
-async function deleteCurrentEvent() {
-  const id = elements.eventId.value;
-  if (!id || !canEdit()) return;
-  const ok = confirm('Sigur vrei să ștergi evenimentul?');
+  const ok = confirm(`Șterg ${duplicates.length} duplicate din baza de date?`);
   if (!ok) return;
 
-  if (state.supabaseReady) {
-    const { error } = await state.supabase.from(TABLE_NAME).delete().eq('id', id);
+  try {
+    const { error } = await state.supabase.from(TABLE_NAME).delete().in("id", duplicates);
     if (error) throw error;
-  } else {
-    state.events = state.events.filter(event => event.id !== id);
-    saveLocalEvents();
-    render();
+    await loadEvents();
+    showNotice(`Am șters ${duplicates.length} duplicate.`, "success");
+  } catch (err) {
+    showNotice(`Nu am putut șterge duplicatele: ${friendlyError(err)}`, "error");
   }
-
-  closeEventDialog();
-  showToast('Eveniment șters.');
 }
 
-async function seedInitialEvents() {
-  if (!canEdit()) return;
-  const ok = confirm('Asta adaugă evenimentele inițiale. Continuăm?');
+function getDuplicateIds(events) {
+  const seen = new Set();
+  const duplicateIds = [];
+  for (const event of events) {
+    const key = naturalKey(event);
+    if (seen.has(key)) duplicateIds.push(event.id);
+    else seen.add(key);
+  }
+  return duplicateIds;
+}
+
+async function resetToDefaultPlan() {
+  const ok = confirm("Resetez calendarul la planul inițial? Evenimentele existente se șterg și se pun cele curate, fără duplicate.");
   if (!ok) return;
 
-  if (state.supabaseReady) {
-    const rows = seedEvents.map(event => ({
-      ...toDbPayload(normalizeEvent(event)),
-      created_at: new Date().toISOString()
-    }));
-    const { error } = await state.supabase.from(TABLE_NAME).insert(rows);
-    if (error) throw error;
-  } else {
-    state.events = seedEvents.map(normalizeEvent);
-    saveLocalEvents();
-    render();
+  try {
+    setSync("", "Se resetează...");
+    const { error: deleteError } = await state.supabase
+      .from(TABLE_NAME)
+      .delete()
+      .neq("id", "__niciodata__");
+    if (deleteError) throw deleteError;
+
+    const { error: insertError } = await state.supabase
+      .from(TABLE_NAME)
+      .upsert(DEFAULT_EVENTS, { onConflict: "id" });
+    if (insertError) throw insertError;
+
+    await loadEvents();
+    showNotice("Planul inițial a fost încărcat curat, fără duplicate.", "success");
+  } catch (err) {
+    showNotice(`Resetarea nu a reușit: ${friendlyError(err)}. Rulează supabase-reset.sql în Supabase SQL Editor.`, "error");
   }
-  showToast('Evenimente inițiale încărcate.');
 }
 
-function exportJson(events = state.events) {
-  const payload = JSON.stringify(sortEvents(events), null, 2);
-  const blob = new Blob([payload], { type: 'application/json' });
+function exportJson() {
+  const payload = JSON.stringify(state.events, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'calendar-2026-events.json';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `calendar-2026-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
-async function importJson(file) {
-  if (!canEdit()) return;
-  const text = await file.text();
-  const parsed = JSON.parse(text).map(normalizeEvent);
-  if (!Array.isArray(parsed)) throw new Error('Invalid JSON');
+async function importJson(event) {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (!file) return;
 
-  if (state.supabaseReady) {
-    const rows = parsed.map(event => ({
-      ...toDbPayload(event),
-      created_at: new Date().toISOString()
-    }));
-    const { error } = await state.supabase.from(TABLE_NAME).insert(rows);
+  try {
+    const text = await file.text();
+    const json = JSON.parse(text);
+    if (!Array.isArray(json)) throw new Error("Fișierul JSON trebuie să conțină o listă de evenimente.");
+
+    const imported = json.map(normalizeEvent).filter(Boolean);
+    if (!imported.length) throw new Error("Nu am găsit evenimente valide în JSON.");
+
+    const ok = confirm(`Import ${imported.length} evenimente? Evenimentele cu același id vor fi actualizate.`);
+    if (!ok) return;
+
+    const { error } = await state.supabase.from(TABLE_NAME).upsert(imported, { onConflict: "id" });
     if (error) throw error;
-  } else {
-    state.events = parsed;
-    saveLocalEvents();
-    render();
+
+    await loadEvents();
+    showNotice(`Am importat ${imported.length} evenimente.`, "success");
+  } catch (err) {
+    showNotice(`Importul nu a reușit: ${friendlyError(err)}`, "error");
   }
-  showToast('Import finalizat.');
 }
 
-async function login(email, password) {
-  if (!state.supabaseReady) {
-    showToast('Loginul funcționează după configurarea Supabase.');
-    return;
+function groupByMonth(events) {
+  const map = new Map();
+  for (const event of events) {
+    const key = event.start_date.slice(0, 7);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(event);
   }
-  const { error } = await state.supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  elements.authDialog.close();
-  showToast('Ai intrat.');
+  return map;
 }
 
-async function register(email, password) {
-  if (!state.supabaseReady) {
-    showToast('Crearea contului funcționează după configurarea Supabase.');
-    return;
+function getMonthsForCalendar(events) {
+  if (state.month !== "all") return [state.month];
+  const months = new Set();
+  for (const event of events) {
+    for (const key of monthsInRange(event.start_date, event.end_date)) months.add(key);
   }
-  const { error } = await state.supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  elements.authDialog.close();
-  showToast('Cont creat. Dacă Supabase cere confirmare email, verifică inboxul.');
+  return Array.from(months).sort();
+}
+
+function fillMonthSelect() {
+  const months = [
+    ["all", "Toate lunile"],
+    ["2026-06", "Iunie 2026"],
+    ["2026-07", "Iulie 2026"],
+    ["2026-08", "August 2026"],
+    ["2026-09", "Septembrie 2026"]
+  ];
+
+  els.monthSelect.innerHTML = months
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join("");
+}
+
+function monthsInRange(startISO, endISO) {
+  const start = parseDate(startISO);
+  const end = parseDate(endISO);
+  const keys = [];
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+  const last = new Date(end.getFullYear(), end.getMonth(), 1);
+
+  while (cursor <= last) {
+    keys.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return keys;
+}
+
+function eventTouchesMonth(event, monthKey) {
+  const [year, month] = monthKey.split("-").map(Number);
+  const monthStart = new Date(year, month - 1, 1);
+  const monthEnd = new Date(year, month, 0);
+  return parseDate(event.start_date) <= monthEnd && parseDate(event.end_date) >= monthStart;
+}
+
+function monthNameFromKey(key) {
+  const [year, month] = key.split("-").map(Number);
+  return `${MONTHS[month - 1]} ${year}`;
+}
+
+function formatRange(event) {
+  const start = parseDate(event.start_date);
+  const end = parseDate(event.end_date);
+  const startText = formatDate(start);
+  if (isSameDay(start, end)) return startText;
+  return `${startText} – ${formatDate(end)}`;
+}
+
+function formatDate(date) {
+  return `${String(date.getDate()).padStart(2, "0")} ${MONTHS[date.getMonth()].slice(0, 3).toLowerCase()} ${date.getFullYear()}`;
+}
+
+function parseDate(value) {
+  if (value instanceof Date) return stripTime(value);
+  const [year, month, day] = String(value).slice(0, 10).split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toISODate(value) {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.slice(0, 10))) {
+    return value.slice(0, 10);
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function stripTime(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function dateInRange(date, start, end) {
+  const value = stripTime(date);
+  return value >= stripTime(start) && value <= stripTime(end);
+}
+
+function isSameDay(a, b) {
+  return stripTime(a).getTime() === stripTime(b).getTime();
+}
+
+function diffDays(a, b) {
+  const ms = stripTime(b).getTime() - stripTime(a).getTime();
+  return Math.ceil(ms / 86400000);
+}
+
+function makeId(title, start) {
+  const slug = String(title)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 52);
+  const random = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${start || toISODate(new Date())}-${slug || "eveniment"}-${random.slice(0, 8)}`;
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("calendar-theme", theme);
+  els.themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+}
+
+function applyStoredTheme() {
+  const saved = localStorage.getItem("calendar-theme");
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  setTheme(saved || (prefersDark ? "dark" : "light"));
+}
+
+function setSync(type, text) {
+  els.syncPill.className = `sync-pill ${type || ""}`.trim();
+  els.syncPill.textContent = text;
+}
+
+function showNotice(text, type = "") {
+  els.systemNotice.className = `notice ${type}`.trim();
+  els.systemNotice.textContent = text;
+  els.systemNotice.classList.remove("hidden");
+}
+
+function hideNotice() {
+  els.systemNotice.classList.add("hidden");
+  els.systemNotice.textContent = "";
+}
+
+function showLoginError(text) {
+  els.loginMessage.textContent = text;
+  els.loginMessage.className = "message";
+}
+
+function showFormError(text) {
+  els.formMessage.textContent = text;
+  els.formMessage.className = "message";
+}
+
+function hideMessage(element) {
+  element.textContent = "";
+  element.className = "message hidden";
+}
+
+function friendlyError(err) {
+  const message = String(err?.message ?? err ?? "eroare necunoscută");
+
+  if (message.includes("Invalid login credentials")) {
+    return "emailul sau parola sunt greșite. Creează userul în Supabase → Authentication → Users sau schimbă parola.";
+  }
+  if (message.includes("Email not confirmed")) {
+    return "emailul nu este confirmat. În Supabase poți confirma manual userul sau dezactiva confirmarea emailului.";
+  }
+  if (message.includes("relation") && message.includes("does not exist")) {
+    return "tabelul calendar_events nu există. Rulează supabase-reset.sql în SQL Editor.";
+  }
+  if (message.includes("permission denied") || message.includes("violates row-level security")) {
+    return "regulile RLS blochează operația. Rulează supabase-reset.sql și verifică emailul de admin din script.";
+  }
+
+  return message;
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>'"]/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  })[char]);
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
-
-function escapeAttr(value) {
-  return escapeHtml(value).replace(/`/g, '&#96;');
-}
-
-function bindEvents() {
-  elements.themeToggle.addEventListener('click', () => {
-    const isDark = document.documentElement.dataset.theme === 'dark';
-    document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
-    elements.themeToggle.textContent = isDark ? '🌙' : '☀️';
-    localStorage.setItem('calendar_2026_theme', isDark ? 'light' : 'dark');
-  });
-
-  elements.authButton.addEventListener('click', async () => {
-    if (!state.supabaseReady) {
-      showToast('Completează mai întâi supabase-config.js pentru login cloud.');
-      return;
-    }
-    if (state.user) {
-      await state.supabase.auth.signOut();
-      showToast('Ai ieșit din cont.');
-      return;
-    }
-    elements.authDialog.showModal();
-  });
-
-  elements.authForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    try {
-      await login(elements.authEmail.value, elements.authPassword.value);
-    } catch (error) {
-      console.error(error);
-      showToast('Login eșuat. Verifică email/parolă și Auth provider.');
-    }
-  });
-
-  elements.registerBtn.addEventListener('click', async () => {
-    try {
-      await register(elements.authEmail.value, elements.authPassword.value);
-    } catch (error) {
-      console.error(error);
-      showToast('Nu pot crea contul. Verifică setările Auth din Supabase.');
-    }
-  });
-
-  document.querySelectorAll('[data-close-auth]').forEach(button => button.addEventListener('click', () => elements.authDialog.close()));
-  document.querySelectorAll('[data-close-event]').forEach(button => button.addEventListener('click', closeEventDialog));
-
-  elements.searchInput.addEventListener('input', render);
-  elements.monthFilter.addEventListener('change', render);
-
-  elements.filterChips.forEach(chip => chip.addEventListener('click', () => {
-    elements.filterChips.forEach(item => item.classList.remove('active'));
-    chip.classList.add('active');
-    state.categoryFilter = chip.dataset.filter;
-    render();
-  }));
-
-  elements.viewTimeline.addEventListener('click', () => {
-    state.view = 'timeline';
-    elements.viewTimeline.classList.add('active');
-    elements.viewCalendar.classList.remove('active');
-    render();
-  });
-
-  elements.viewCalendar.addEventListener('click', () => {
-    state.view = 'calendar';
-    elements.viewCalendar.classList.add('active');
-    elements.viewTimeline.classList.remove('active');
-    render();
-  });
-
-  elements.addEventBtn.addEventListener('click', () => openEventDialog());
-
-  elements.eventForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    try {
-      await saveEventFromForm();
-    } catch (error) {
-      console.error(error);
-      showToast('Nu am putut salva evenimentul.');
-    }
-  });
-
-  elements.deleteEventBtn.addEventListener('click', async () => {
-    try {
-      await deleteCurrentEvent();
-    } catch (error) {
-      console.error(error);
-      showToast('Nu am putut șterge evenimentul.');
-    }
-  });
-
-  elements.seedButton.addEventListener('click', seedInitialEvents);
-  elements.downloadSeed.addEventListener('click', () => exportJson(seedEvents.map(normalizeEvent)));
-  elements.exportButton.addEventListener('click', () => exportJson());
-  elements.importButton.addEventListener('click', () => elements.importFile.click());
-  elements.importFile.addEventListener('change', async () => {
-    const file = elements.importFile.files?.[0];
-    if (!file) return;
-    try {
-      await importJson(file);
-    } catch (error) {
-      console.error(error);
-      showToast('Import eșuat. JSON invalid?');
-    } finally {
-      elements.importFile.value = '';
-    }
-  });
-
-  elements.printButton.addEventListener('click', () => window.print());
-}
-
-function initTheme() {
-  const theme = localStorage.getItem('calendar_2026_theme');
-  if (theme === 'dark') {
-    document.documentElement.dataset.theme = 'dark';
-    elements.themeToggle.textContent = '☀️';
-  }
-}
-
-initTheme();
-bindEvents();
-initSupabase();
